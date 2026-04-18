@@ -1,0 +1,27 @@
+[
+  {
+    "hash": "34b047284",
+    "message": "Clarify nested product repo boundaries",
+    "repo": "axiom-workspace",
+    "date": "2026-04-17",
+    "linkedItemId": "board-6",
+    "linkedProjectId": "proj-1",
+    "filesChanged": ["AGENTS.md", "workspace docs", "migration notes"]
+  },
+  {
+    "hash": "6ede40707",
+    "message": "Add product repo migration plan",
+    "repo": "axiom-workspace",
+    "date": "2026-04-17",
+    "linkedItemId": "board-3",
+    "linkedProjectId": "proj-1",
+    "filesChanged": ["migration notes", "workspace planning docs"]
+  },
+  {
+    "hash": "88816d3",
+    "message": "Add workspace context note",
+    "repo": "latinum-landing",
+    "date": "2026-04-17",
+    "filesChanged": ["README-WORKSPACE-CONTEXT.md"]
+  }
+]

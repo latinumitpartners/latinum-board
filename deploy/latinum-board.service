@@ -1,0 +1,17 @@
+[Unit]
+Description=Latinum Board Next.js app
+After=network.target
+
+[Service]
+Type=simple
+User=ubuntu
+WorkingDirectory=/var/www/latinum-board
+Environment=NODE_ENV=production
+Environment=PORT=3010
+Environment=LATINUM_BOARD_OPERATOR_API=http://10.0.0.92:9876
+ExecStart=/usr/bin/npm run start
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,38 @@
+[
+  {
+    "id": "log-2026-04-17",
+    "date": "2026-04-17",
+    "summary": "Planned and scaffolded the first version of the Latinum command board.",
+    "bullets": [
+      "Defined the dashboard and kanban structure for the private operator board.",
+      "Split the board into its own standalone app under product/latinum-board.",
+      "Added deployment scripts and rollout automation for kevin-todo.latinum.ca.",
+      "Built the item detail drawer and connected it to board cards."
+    ],
+    "linkedItemIds": ["board-2", "board-3", "board-6"],
+    "linkedCommitHashes": ["34b047284"]
+  },
+  {
+    "id": "log-2026-04-16",
+    "date": "2026-04-16",
+    "summary": "Established the dev staging path and confirmed the hidden staging workflow.",
+    "bullets": [
+      "Used 10.1.0.47 and dev.latinum.ca as the staging environment for landing work.",
+      "Confirmed the staging host runtime and service layout.",
+      "Validated the decision to use the dev VPS as the first private board host."
+    ],
+    "linkedItemIds": ["board-1"],
+    "linkedCommitHashes": []
+  },
+  {
+    "id": "log-2026-04-15",
+    "date": "2026-04-15",
+    "summary": "Clarified deployment and firewall baseline decisions for client infrastructure.",
+    "bullets": [
+      "Refined deploy script firewall defaults and access assumptions.",
+      "Captured reusable deployment patterns that now inform board rollout scripts."
+    ],
+    "linkedItemIds": ["board-4"],
+    "linkedCommitHashes": []
+  }
+]
