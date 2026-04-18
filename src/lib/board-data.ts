@@ -6,6 +6,7 @@ import type {
   DashboardData,
   DashboardKPI,
   ProjectSummary,
+  SessionSnapshot,
   Status,
   WorkItem,
   WorklogEntry,
@@ -327,7 +328,7 @@ export function buildNeedsLogging(snapshot: BoardDataSnapshot): string[] {
   ]
 }
 
-export function buildDashboardData(snapshot: BoardDataSnapshot): DashboardData {
+export function buildDashboardData(snapshot: BoardDataSnapshot, sessions: SessionSnapshot[] = []): DashboardData {
   const tasks = snapshot.tasks
   const projects = buildProjectSummaries(snapshot)
   const dueThisWeek = tasks.filter((task) => Boolean(task.dueDate) && task.status !== 'done').length
@@ -342,10 +343,23 @@ export function buildDashboardData(snapshot: BoardDataSnapshot): DashboardData {
     snapshot.worklogs.filter((entry) => entry.linkedItemIds.length === 0).length,
   ].reduce((sum, value) => sum + value, 0)
 
+  const sessionCounts = {
+    active: sessions.filter((session) => session.status === 'active').length,
+    waiting: sessions.filter((session) => session.status === 'waiting').length,
+    stalled: sessions.filter((session) => session.status === 'stalled').length,
+    completedRecently: sessions.filter((session) => {
+      const text = (session.summary || session.lastAssistantText || '').toLowerCase()
+      return session.status === 'quiet' && (text.includes('done') || text.includes('completed') || text.includes('shipped'))
+    }).length,
+  }
+
   const kpis: DashboardKPI[] = [
     { label: 'Open Items', value: tasks.filter((task) => task.status !== 'done').length, meta: `${dueThisWeek} due this week` },
     { label: 'In Progress', value: inProgress },
     { label: 'Waiting', value: waiting },
+    { label: 'Active Sessions', value: sessionCounts.active },
+    { label: 'Waiting Sessions', value: sessionCounts.waiting },
+    { label: 'Stalled Sessions', value: sessionCounts.stalled },
     { label: 'Commits This Week', value: commitsThisWeek },
     { label: 'Work Logs This Week', value: worklogsThisWeek },
     { label: 'Needs Logging', value: needsLoggingCount, meta: 'attention needed' },
@@ -361,6 +375,14 @@ export function buildDashboardData(snapshot: BoardDataSnapshot): DashboardData {
     .sort((a, b) => statusRank[a.status] - statusRank[b.status])
     .slice(0, 5)
 
+  const recentCompletedSessions = sessions
+    .filter((session) => {
+      const text = (session.summary || session.lastAssistantText || '').toLowerCase()
+      return session.status === 'quiet' && (text.includes('done') || text.includes('completed') || text.includes('shipped'))
+    })
+    .sort((a, b) => b.lastUpdated.localeCompare(a.lastUpdated))
+    .slice(0, 4)
+
   return {
     kpis,
     todayItems,
@@ -368,6 +390,8 @@ export function buildDashboardData(snapshot: BoardDataSnapshot): DashboardData {
     projects,
     activity: buildActivity(snapshot),
     needsLogging,
+    sessionCounts,
+    recentCompletedSessions,
   }
 }
 

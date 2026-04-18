@@ -1,29 +1,14 @@
-export interface SessionSnapshot {
-  sessionKey: string
-  title: string
-  lastUpdated: string
-  cwd?: string
-  model?: string
-  thinking?: string
-  lastUserText?: string
-  lastAssistantText?: string
-  messageCount: number
-  status: 'active' | 'quiet'
-}
+import { promises as fs } from 'fs'
+import path from 'path'
 
-const OPERATOR_API = process.env.LATINUM_BOARD_OPERATOR_API || 'http://10.0.0.92:9876'
+import type { SessionSnapshot } from '@/lib/board-types'
+
+const SESSION_SNAPSHOT_FILE = process.env.LATINUM_BOARD_SESSIONS_FILE || path.join(process.cwd(), 'data', 'sessions.json')
 
 export async function readSessionSnapshots(limit = 20): Promise<SessionSnapshot[]> {
   try {
-    const response = await fetch(`${OPERATOR_API}/api/sessions/recent`, {
-      method: 'GET',
-      headers: { 'Content-Type': 'application/json' },
-      cache: 'no-store',
-    })
-
-    if (!response.ok) return []
-
-    const payload = (await response.json()) as SessionSnapshot[]
+    const raw = await fs.readFile(SESSION_SNAPSHOT_FILE, 'utf8')
+    const payload = JSON.parse(raw) as SessionSnapshot[]
     return payload.slice(0, limit)
   } catch {
     return []

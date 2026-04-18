@@ -4,10 +4,17 @@ import { readAuditEvents } from '@/lib/server/audit-store'
 import { readCommits } from '@/lib/server/commits-store'
 import { readTasks } from '@/lib/server/tasks-store'
 import { readWorklogs } from '@/lib/server/worklogs-store'
+import { readSessionSnapshots } from '@/lib/server/session-ingest'
 
 export async function GET() {
-  const [tasks, commits, worklogs, auditEvents] = await Promise.all([readTasks(), readCommits(), readWorklogs(), readAuditEvents()])
+  const [tasks, commits, worklogs, auditEvents, sessions] = await Promise.all([
+    readTasks(),
+    readCommits(),
+    readWorklogs(),
+    readAuditEvents(),
+    readSessionSnapshots(),
+  ])
   const snapshot = createBoardSnapshot(tasks, commits, worklogs, auditEvents)
-  const dashboard = buildDashboardData(snapshot)
+  const dashboard = buildDashboardData(snapshot, sessions)
   return NextResponse.json(dashboard)
 }

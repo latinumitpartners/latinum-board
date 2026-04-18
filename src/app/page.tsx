@@ -5,7 +5,9 @@ import { WaitingPanel } from '@/components/board/dashboard/WaitingPanel'
 import { ActiveProjectsPanel } from '@/components/board/dashboard/ActiveProjectsPanel'
 import { RecentActivityPanel } from '@/components/board/dashboard/RecentActivityPanel'
 import { NeedsLoggingPanel } from '@/components/board/dashboard/NeedsLoggingPanel'
-import { SessionsPanel } from '@/components/board/sessions/SessionsPanel'
+import { SessionsOverviewPanel } from '@/components/board/dashboard/SessionsOverviewPanel'
+import { RecentCompletedSessionsPanel } from '@/components/board/dashboard/RecentCompletedSessionsPanel'
+import { SessionsSecondaryPanel } from '@/components/board/dashboard/SessionsSecondaryPanel'
 
 export default function Home() {
   return (
@@ -29,8 +31,14 @@ export default function Home() {
           <div className="xl:col-span-5">
             <NeedsLoggingPanel />
           </div>
+          <div className="xl:col-span-8">
+            <SessionsOverviewPanel />
+          </div>
+          <div className="xl:col-span-4">
+            <RecentCompletedSessionsPanel />
+          </div>
           <div className="xl:col-span-12">
-            <SessionsPanel />
+            <SessionsSecondaryPanel />
           </div>
         </div>
       </div>

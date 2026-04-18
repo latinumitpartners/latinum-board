@@ -72,6 +72,20 @@ export interface DashboardKPI {
   meta?: string
 }
 
+export interface SessionSnapshot {
+  sessionKey: string
+  title: string
+  lastUpdated: string
+  cwd?: string
+  model?: string
+  thinking?: string
+  lastUserText?: string
+  lastAssistantText?: string
+  messageCount: number
+  status: 'active' | 'quiet' | 'waiting' | 'stalled'
+  summary?: string
+}
+
 export interface DashboardData {
   kpis: DashboardKPI[]
   todayItems: WorkItem[]
@@ -79,6 +93,13 @@ export interface DashboardData {
   projects: ProjectSummary[]
   activity: ActivityItem[]
   needsLogging: string[]
+  sessionCounts?: {
+    active: number
+    waiting: number
+    stalled: number
+    completedRecently: number
+  }
+  recentCompletedSessions?: SessionSnapshot[]
 }
 
 export interface BoardDataSnapshot {
