@@ -90,6 +90,18 @@ class HubSpotHandler(CRMInterface):
             "message": "Deal created in HubSpot",
         }
 
+    def get_deal(self, deal_id: str) -> dict[str, Any]:
+        response = self._request("GET", f"/crm/v3/objects/deals/{deal_id}")
+        if not response:
+            return {"success": False, "message": "HubSpot get_deal failed", "deal_id": deal_id}
+        return {"success": True, "deal": response}
+
+    def list_deals(self, limit: int = 10) -> list[dict[str, Any]]:
+        response = self._request("GET", f"/crm/v3/objects/deals?limit={limit}")
+        if not response:
+            return []
+        return response.get("results", [])
+
     def update_deal(self, deal_id: str, data: dict[str, Any]) -> dict[str, Any]:
         payload = {
             "properties": {
@@ -115,6 +127,12 @@ class HubSpotHandler(CRMInterface):
         if not response:
             return {"success": False, "message": "HubSpot log_activity failed"}
         return {"success": True, "id": response.get("id"), "message": "Activity logged in HubSpot"}
+
+    def list_activities(self, limit: int = 10) -> list[dict[str, Any]]:
+        response = self._request("GET", f"/crm/v3/objects/notes?limit={limit}")
+        if not response:
+            return []
+        return response.get("results", [])
 
     def get_crm_type(self) -> str:
         return "hubspot"

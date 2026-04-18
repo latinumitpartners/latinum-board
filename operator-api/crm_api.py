@@ -5,7 +5,15 @@ from typing import Any
 from urllib.parse import parse_qs
 
 from crm_manager import CRMManager
-from crm_store import get_crm_integration, log_crm_sync, mask_credentials, upsert_crm_integration
+from crm_store import (
+    get_crm_integration,
+    get_crm_integration_status,
+    log_crm_sync,
+    mask_credentials,
+    reseal_all_credentials,
+    rotate_crm_credentials,
+    upsert_crm_integration,
+)
 from hubspot_handler import HubSpotHandler
 from salesforce_handler import SalesforceHandler
 
@@ -17,6 +25,8 @@ CRM_GET_PATHS = {
     '/api/crm/supported',
     '/api/crm/validate',
     '/api/crm/config',
+    '/api/crm/status',
+    '/api/crm/reseal',
     '/api/crm/contacts/get',
     '/api/crm/contacts/list',
     '/api/crm/deals/get',
@@ -26,6 +36,7 @@ CRM_GET_PATHS = {
 
 CRM_POST_PATHS = {
     '/api/crm/setup',
+    '/api/crm/rotate',
     '/api/crm/contacts',
     '/api/crm/deals',
     '/api/crm/activities',
@@ -53,6 +64,10 @@ def handle_crm_get(path: str, query: str) -> tuple[dict[str, Any], int] | None:
         ok, message = CRM_MANAGER.validate_credentials(crm_type, credentials)
         return {'success': ok, 'message': message, 'crm_type': crm_type}, 200 if ok else 400
 
+    if path == '/api/crm/reseal':
+        count = reseal_all_credentials()
+        return {'success': True, 'resealed_integrations': count}, 200
+
     crm_type = (params.get('crm_type') or [''])[0]
     bot_id = (params.get('bot_id') or [''])[0]
 
@@ -62,6 +77,12 @@ def handle_crm_get(path: str, query: str) -> tuple[dict[str, Any], int] | None:
             return {'success': False, 'message': 'CRM integration not found'}, 404
         record['credentials'] = mask_credentials(record['credentials'])
         return {'success': True, 'integration': record}, 200
+
+    if path == '/api/crm/status':
+        status = get_crm_integration_status(bot_id, crm_type)
+        if not status:
+            return {'success': False, 'message': 'CRM integration not found'}, 404
+        return {'success': True, 'integration_status': status}, 200
 
     record = get_crm_integration(bot_id, crm_type)
     if not record:
@@ -100,18 +121,26 @@ def handle_crm_post(path: str, payload: dict[str, Any]) -> tuple[dict[str, Any],
     if path not in CRM_POST_PATHS:
         return None
 
-    if path == '/api/crm/setup':
+    if path in {'/api/crm/setup', '/api/crm/rotate'}:
         crm_type = str(payload.get('crm_type', '')).strip().lower()
         bot_id = str(payload.get('bot_id', '')).strip()
         credentials = payload.get('credentials', {})
+        credential_label = str(payload.get('credential_label', '')).strip() or None
         if not bot_id or not crm_type or not isinstance(credentials, dict):
             return {'success': False, 'message': 'bot_id, crm_type and credentials are required'}, 400
 
         ok, message = CRM_MANAGER.validate_credentials(crm_type, credentials)
         if not ok:
             return {'success': False, 'message': message, 'crm_type': crm_type}, 400
-        record = upsert_crm_integration(bot_id, crm_type, credentials)
-        return {'success': True, 'message': 'CRM integration saved', 'integration': record}, 200
+
+        if path == '/api/crm/setup':
+            record = upsert_crm_integration(bot_id, crm_type, credentials, credential_label=credential_label)
+            return {'success': True, 'message': 'CRM integration saved', 'integration': record}, 200
+
+        record = rotate_crm_credentials(bot_id, crm_type, credentials, credential_label=credential_label)
+        if not record:
+            return {'success': False, 'message': 'CRM integration not configured'}, 404
+        return {'success': True, 'message': 'CRM credentials rotated', 'integration': record}, 200
 
     bot_id = str(payload.get('bot_id', '')).strip()
     crm_type = str(payload.get('crm_type', '')).strip().lower()
