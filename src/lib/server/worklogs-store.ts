@@ -1,14 +1,10 @@
-import { promises as fs } from 'fs'
-import path from 'path'
 import type { WorklogEntry } from '@/lib/board-types'
-
-const WORKLOGS_PATH = path.join(process.cwd(), 'data', 'worklogs.json')
+import { readIngestionItems, writeIngestionItems } from '@/lib/server/ingestion-readers'
 
 export async function readWorklogs(): Promise<WorklogEntry[]> {
-  const raw = await fs.readFile(WORKLOGS_PATH, 'utf8')
-  return JSON.parse(raw) as WorklogEntry[]
+  return readIngestionItems<WorklogEntry>('worklogs.json')
 }
 
 export async function writeWorklogs(worklogs: WorklogEntry[]): Promise<void> {
-  await fs.writeFile(WORKLOGS_PATH, JSON.stringify(worklogs, null, 2) + '\n', 'utf8')
+  await writeIngestionItems('worklogs.json', 'worklogs', worklogs)
 }

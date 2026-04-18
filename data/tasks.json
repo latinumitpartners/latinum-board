@@ -1,127 +1,227 @@
-[
-  {
-    "id": "board-1",
-    "title": "Capture dashboard requirements",
-    "project": "Latinum Board MVP",
-    "status": "inbox",
-    "priority": "medium",
-    "owner": "Kevin",
-    "nextAction": "Review workflow expectations from recent sessions",
-    "commitLinked": false,
-    "logLinked": false,
-    "description": "Collect the exact operator workflow expectations so the board reflects how Kevin and Claudia already work.",
-    "subtasks": [
-      { "id": "board-1-sub-1", "title": "List workflow sections", "done": true },
-      { "id": "board-1-sub-2", "title": "Define ownership and status metadata", "done": false }
-    ],
-    "linkedCommits": [],
-    "linkedLogs": ["2026-04-17"],
-    "notes": ["Needs to keep work logs and commits as first-class records."],
-    "history": ["Created from planning discussion in Claudia topics."]
-  },
-  {
-    "id": "board-2",
-    "title": "Define board statuses",
-    "project": "Latinum Board MVP",
-    "status": "next",
-    "priority": "high",
-    "owner": "Claudia",
-    "nextAction": "Confirm final status vocabulary",
-    "commitLinked": false,
-    "logLinked": true,
-    "description": "Finalize the status model so tasks can move cleanly from capture through delivery.",
-    "subtasks": [
-      { "id": "board-2-sub-1", "title": "Keep statuses minimal", "done": true },
-      { "id": "board-2-sub-2", "title": "Validate waiting and review semantics", "done": false }
-    ],
-    "linkedCommits": [],
-    "linkedLogs": ["2026-04-17"],
-    "notes": ["Current preferred set: inbox, next, in progress, waiting, blocked, review, done."],
-    "history": ["Promoted from dashboard planning into next actions."]
-  },
-  {
-    "id": "board-3",
-    "title": "Build dashboard shell",
-    "project": "Latinum Board MVP",
-    "status": "in_progress",
-    "priority": "high",
-    "owner": "Claudia",
-    "dueDate": "Apr 17",
-    "nextAction": "Stabilize shell components and cards",
-    "commitLinked": true,
-    "logLinked": true,
-    "description": "Establish the dark control-plane shell, shared primitives, and dashboard panels for the first usable board.",
-    "subtasks": [
-      { "id": "board-3-sub-1", "title": "Create shell layout", "done": true },
-      { "id": "board-3-sub-2", "title": "Build dashboard panels", "done": true },
-      { "id": "board-3-sub-3", "title": "Wire item drawer", "done": false }
-    ],
-    "linkedCommits": ["34b047284"],
-    "linkedLogs": ["2026-04-17"],
-    "notes": ["Board is now a standalone app under product/latinum-board."],
-    "history": ["Dashboard shell scaffolded.", "Kanban route added at /board."]
-  },
-  {
-    "id": "board-4",
-    "title": "Choose commit import model",
-    "project": "Latinum Board MVP",
-    "status": "waiting",
-    "priority": "medium",
-    "owner": "Kevin",
-    "waitingOn": "Kevin",
-    "nextAction": "Pick manual, assisted, or automatic ingestion",
-    "commitLinked": false,
-    "logLinked": false,
-    "description": "Decide how commit records should enter the board, from fully manual links to automated ingestion.",
-    "subtasks": [
-      { "id": "board-4-sub-1", "title": "Compare manual vs automatic import", "done": false },
-      { "id": "board-4-sub-2", "title": "Define minimum metadata to store", "done": false }
-    ],
-    "linkedCommits": [],
-    "linkedLogs": [],
-    "notes": ["This affects commits screen design and data model."],
-    "history": ["Blocked pending workflow choice from Kevin."]
-  },
-  {
-    "id": "board-5",
-    "title": "Resolve project auth approach",
-    "project": "Latinum Board MVP",
-    "status": "review",
-    "priority": "medium",
-    "owner": "Claudia",
-    "nextAction": "Review auth options before implementation",
-    "commitLinked": false,
-    "logLinked": false,
-    "description": "Basic auth is fine for v1, but the longer-term auth model should be reviewed before operational use expands.",
-    "subtasks": [
-      { "id": "board-5-sub-1", "title": "Use nginx basic auth for v1", "done": true },
-      { "id": "board-5-sub-2", "title": "Define future app auth requirements", "done": false }
-    ],
-    "linkedCommits": [],
-    "linkedLogs": [],
-    "notes": ["Likely evolve to in-app auth and audit trail later."],
-    "history": ["Moved into review after subdomain deployment planning."]
-  },
-  {
-    "id": "board-6",
-    "title": "Split board into standalone app",
-    "project": "Latinum Board MVP",
-    "status": "done",
-    "priority": "high",
-    "owner": "Claudia",
-    "dueDate": "Apr 17",
-    "nextAction": "Use new repo boundary for all future work",
-    "commitLinked": true,
-    "logLinked": true,
-    "description": "Moved the board out of latinum-landing into its own standalone project boundary.",
-    "subtasks": [
-      { "id": "board-6-sub-1", "title": "Scaffold separate Next app", "done": true },
-      { "id": "board-6-sub-2", "title": "Move board shell and primitives", "done": true },
-      { "id": "board-6-sub-3", "title": "Clean latinum-landing", "done": true }
-    ],
-    "linkedCommits": ["34b047284"],
-    "linkedLogs": ["2026-04-17"],
-    "notes": ["Future work now belongs only in product/latinum-board."],
-    "history": ["Standalone app created.", "Both apps verified building cleanly."]
-  }
-]
+{
+  "schemaVersion": "2026-04-18.v1",
+  "generatedAt": "2026-04-18T21:06:00Z",
+  "source": "local-store",
+  "kind": "tasks",
+  "items": [
+    {
+      "id": "board-1",
+      "title": "Capture dashboard requirements",
+      "project": "Latinum Board MVP",
+      "status": "inbox",
+      "priority": "medium",
+      "owner": "Kevin",
+      "nextAction": "Review workflow expectations from recent sessions",
+      "commitLinked": false,
+      "logLinked": false,
+      "description": "Collect the exact operator workflow expectations so the board reflects how Kevin and Claudia already work.",
+      "subtasks": [
+        {
+          "id": "board-1-sub-1",
+          "title": "List workflow sections",
+          "done": true
+        },
+        {
+          "id": "board-1-sub-2",
+          "title": "Define ownership and status metadata",
+          "done": false
+        }
+      ],
+      "linkedCommits": [],
+      "linkedLogs": [
+        "2026-04-17"
+      ],
+      "notes": [
+        "Needs to keep work logs and commits as first-class records."
+      ],
+      "history": [
+        "Created from planning discussion in Claudia topics."
+      ]
+    },
+    {
+      "id": "board-2",
+      "title": "Define board statuses",
+      "project": "Latinum Board MVP",
+      "status": "next",
+      "priority": "high",
+      "owner": "Claudia",
+      "nextAction": "Confirm final status vocabulary",
+      "commitLinked": false,
+      "logLinked": true,
+      "description": "Finalize the status model so tasks can move cleanly from capture through delivery.",
+      "subtasks": [
+        {
+          "id": "board-2-sub-1",
+          "title": "Keep statuses minimal",
+          "done": true
+        },
+        {
+          "id": "board-2-sub-2",
+          "title": "Validate waiting and review semantics",
+          "done": false
+        }
+      ],
+      "linkedCommits": [],
+      "linkedLogs": [
+        "2026-04-17"
+      ],
+      "notes": [
+        "Current preferred set: inbox, next, in progress, waiting, blocked, review, done."
+      ],
+      "history": [
+        "Promoted from dashboard planning into next actions."
+      ]
+    },
+    {
+      "id": "board-3",
+      "title": "Build dashboard shell",
+      "project": "Latinum Board MVP",
+      "status": "in_progress",
+      "priority": "high",
+      "owner": "Claudia",
+      "dueDate": "Apr 17",
+      "nextAction": "Stabilize shell components and cards",
+      "commitLinked": true,
+      "logLinked": true,
+      "description": "Establish the dark control-plane shell, shared primitives, and dashboard panels for the first usable board.",
+      "subtasks": [
+        {
+          "id": "board-3-sub-1",
+          "title": "Create shell layout",
+          "done": true
+        },
+        {
+          "id": "board-3-sub-2",
+          "title": "Build dashboard panels",
+          "done": true
+        },
+        {
+          "id": "board-3-sub-3",
+          "title": "Wire item drawer",
+          "done": false
+        }
+      ],
+      "linkedCommits": [
+        "34b047284"
+      ],
+      "linkedLogs": [
+        "2026-04-17"
+      ],
+      "notes": [
+        "Board is now a standalone app under product/latinum-board."
+      ],
+      "history": [
+        "Dashboard shell scaffolded.",
+        "Kanban route added at /board."
+      ]
+    },
+    {
+      "id": "board-4",
+      "title": "Choose commit import model",
+      "project": "Latinum Board MVP",
+      "status": "waiting",
+      "priority": "medium",
+      "owner": "Kevin",
+      "waitingOn": "Kevin",
+      "nextAction": "Pick manual, assisted, or automatic ingestion",
+      "commitLinked": false,
+      "logLinked": false,
+      "description": "Decide how commit records should enter the board, from fully manual links to automated ingestion.",
+      "subtasks": [
+        {
+          "id": "board-4-sub-1",
+          "title": "Compare manual vs automatic import",
+          "done": false
+        },
+        {
+          "id": "board-4-sub-2",
+          "title": "Define minimum metadata to store",
+          "done": false
+        }
+      ],
+      "linkedCommits": [],
+      "linkedLogs": [],
+      "notes": [
+        "This affects commits screen design and data model."
+      ],
+      "history": [
+        "Blocked pending workflow choice from Kevin."
+      ]
+    },
+    {
+      "id": "board-5",
+      "title": "Resolve project auth approach",
+      "project": "Latinum Board MVP",
+      "status": "review",
+      "priority": "medium",
+      "owner": "Claudia",
+      "nextAction": "Review auth options before implementation",
+      "commitLinked": false,
+      "logLinked": false,
+      "description": "Basic auth is fine for v1, but the longer-term auth model should be reviewed before operational use expands.",
+      "subtasks": [
+        {
+          "id": "board-5-sub-1",
+          "title": "Use nginx basic auth for v1",
+          "done": true
+        },
+        {
+          "id": "board-5-sub-2",
+          "title": "Define future app auth requirements",
+          "done": false
+        }
+      ],
+      "linkedCommits": [],
+      "linkedLogs": [],
+      "notes": [
+        "Likely evolve to in-app auth and audit trail later."
+      ],
+      "history": [
+        "Moved into review after subdomain deployment planning."
+      ]
+    },
+    {
+      "id": "board-6",
+      "title": "Split board into standalone app",
+      "project": "Latinum Board MVP",
+      "status": "done",
+      "priority": "high",
+      "owner": "Claudia",
+      "dueDate": "Apr 17",
+      "nextAction": "Use new repo boundary for all future work",
+      "commitLinked": true,
+      "logLinked": true,
+      "description": "Moved the board out of latinum-landing into its own standalone project boundary.",
+      "subtasks": [
+        {
+          "id": "board-6-sub-1",
+          "title": "Scaffold separate Next app",
+          "done": true
+        },
+        {
+          "id": "board-6-sub-2",
+          "title": "Move board shell and primitives",
+          "done": true
+        },
+        {
+          "id": "board-6-sub-3",
+          "title": "Clean latinum-landing",
+          "done": true
+        }
+      ],
+      "linkedCommits": [
+        "34b047284"
+      ],
+      "linkedLogs": [
+        "2026-04-17"
+      ],
+      "notes": [
+        "Future work now belongs only in product/latinum-board."
+      ],
+      "history": [
+        "Standalone app created.",
+        "Both apps verified building cleanly."
+      ]
+    }
+  ]
+}

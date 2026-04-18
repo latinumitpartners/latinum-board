@@ -8,6 +8,7 @@ import { NeedsLoggingPanel } from '@/components/board/dashboard/NeedsLoggingPane
 import { SessionsOverviewPanel } from '@/components/board/dashboard/SessionsOverviewPanel'
 import { RecentCompletedSessionsPanel } from '@/components/board/dashboard/RecentCompletedSessionsPanel'
 import { SessionsSecondaryPanel } from '@/components/board/dashboard/SessionsSecondaryPanel'
+import { IngestionStatusPanel } from '@/components/board/dashboard/IngestionStatusPanel'
 
 export default function Home() {
   return (
@@ -36,6 +37,9 @@ export default function Home() {
           </div>
           <div className="xl:col-span-4">
             <RecentCompletedSessionsPanel />
+          </div>
+          <div className="xl:col-span-12">
+            <IngestionStatusPanel />
           </div>
           <div className="xl:col-span-12">
             <SessionsSecondaryPanel />
