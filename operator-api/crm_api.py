@@ -23,10 +23,8 @@ CRM_MANAGER.register_handler('salesforce', SalesforceHandler)
 
 CRM_GET_PATHS = {
     '/api/crm/supported',
-    '/api/crm/validate',
     '/api/crm/config',
     '/api/crm/status',
-    '/api/crm/reseal',
     '/api/crm/contacts/get',
     '/api/crm/contacts/list',
     '/api/crm/deals/get',
@@ -35,8 +33,10 @@ CRM_GET_PATHS = {
 }
 
 CRM_POST_PATHS = {
+    '/api/crm/validate',
     '/api/crm/setup',
     '/api/crm/rotate',
+    '/api/crm/reseal',
     '/api/crm/contacts',
     '/api/crm/deals',
     '/api/crm/activities',
@@ -53,20 +53,6 @@ def handle_crm_get(path: str, query: str) -> tuple[dict[str, Any], int] | None:
 
     if path == '/api/crm/supported':
         return {'crms': CRM_MANAGER.list_supported_crms()}, 200
-
-    if path == '/api/crm/validate':
-        crm_type = (params.get('crm_type') or [''])[0]
-        credentials_raw = (params.get('credentials') or ['{}'])[0]
-        try:
-            credentials = json.loads(credentials_raw)
-        except json.JSONDecodeError:
-            return {'success': False, 'message': 'Invalid credentials JSON'}, 400
-        ok, message = CRM_MANAGER.validate_credentials(crm_type, credentials)
-        return {'success': ok, 'message': message, 'crm_type': crm_type}, 200 if ok else 400
-
-    if path == '/api/crm/reseal':
-        count = reseal_all_credentials()
-        return {'success': True, 'resealed_integrations': count}, 200
 
     crm_type = (params.get('crm_type') or [''])[0]
     bot_id = (params.get('bot_id') or [''])[0]
@@ -120,6 +106,18 @@ def handle_crm_get(path: str, query: str) -> tuple[dict[str, Any], int] | None:
 def handle_crm_post(path: str, payload: dict[str, Any]) -> tuple[dict[str, Any], int] | None:
     if path not in CRM_POST_PATHS:
         return None
+
+    if path == '/api/crm/validate':
+        crm_type = str(payload.get('crm_type', '')).strip().lower()
+        credentials = payload.get('credentials', {})
+        if not crm_type or not isinstance(credentials, dict):
+            return {'success': False, 'message': 'crm_type and credentials are required'}, 400
+        ok, message = CRM_MANAGER.validate_credentials(crm_type, credentials)
+        return {'success': ok, 'message': message, 'crm_type': crm_type}, 200 if ok else 400
+
+    if path == '/api/crm/reseal':
+        count = reseal_all_credentials()
+        return {'success': True, 'resealed_integrations': count}, 200
 
     if path in {'/api/crm/setup', '/api/crm/rotate'}:
         crm_type = str(payload.get('crm_type', '')).strip().lower()

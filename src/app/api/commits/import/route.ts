@@ -1,9 +1,12 @@
 import { NextResponse } from 'next/server'
 import { appendAuditEvent } from '@/lib/server/audit-store'
 import { importRecentWorkspaceCommits } from '@/lib/server/git-import'
+import { rejectUnlessAuthorized } from '@/lib/server/request-guards'
 import { readCommits, writeCommits } from '@/lib/server/commits-store'
 
 export async function POST() {
+  const unauthorized = await rejectUnlessAuthorized()
+  if (unauthorized) return unauthorized
   const commits = await readCommits()
   const imported = await importRecentWorkspaceCommits(commits)
   const added = imported.length - commits.length

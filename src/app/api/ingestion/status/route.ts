@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { rejectUnlessAuthorized } from '@/lib/server/request-guards'
 import { readIngestionMeta } from '@/lib/server/ingestion-readers'
 
 function getAgeMinutes(timestamp?: string | null) {
@@ -8,6 +9,9 @@ function getAgeMinutes(timestamp?: string | null) {
 }
 
 export async function GET() {
+  const unauthorized = await rejectUnlessAuthorized()
+  if (unauthorized) return unauthorized
+
   const [sessions, commits, tasks, worklogs] = await Promise.all([
     readIngestionMeta('sessions.json'),
     readIngestionMeta('commits.json'),

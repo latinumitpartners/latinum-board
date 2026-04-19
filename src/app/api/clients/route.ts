@@ -1,18 +1,27 @@
 import { NextResponse } from 'next/server'
 import { appendAuditEvent } from '@/lib/server/audit-store'
+import { boardApiAuthHeaders } from '@/lib/server/api-auth'
 import { readClientRegistry } from '@/lib/server/client-registry'
 import { getCrmApiBase } from '@/lib/server/crm-api-base'
+import { ensureObject, parseBoundedJsonBodyError, rejectUnlessAuthorized } from '@/lib/server/request-guards'
 
 export async function GET() {
+  const unauthorized = await rejectUnlessAuthorized()
+  if (unauthorized) return unauthorized
+
   const clients = await readClientRegistry()
   return NextResponse.json(clients)
 }
 
 export async function POST(request: Request) {
-  const payload = await request.json()
-  const response = await fetch(`${getCrmApiBase()}/api/clients`, {
+  const unauthorized = await rejectUnlessAuthorized()
+  if (unauthorized) return unauthorized
+
+  const payload = await request.json().catch(() => null)
+  if (!ensureObject(payload)) return parseBoundedJsonBodyError('Invalid client payload')
+  const response = await fetch(`${await getCrmApiBase()}/api/clients`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...boardApiAuthHeaders() },
     body: JSON.stringify(payload),
   })
 

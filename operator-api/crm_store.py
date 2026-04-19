@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import base64
 import hashlib
+import hmac
 import json
 import os
 import sqlite3
@@ -37,22 +38,48 @@ def get_secret_key() -> bytes:
     )
 
 
-def _xor_bytes(data: bytes, key: bytes) -> bytes:
-    return bytes(byte ^ key[index % len(key)] for index, byte in enumerate(data))
+def _keystream(key: bytes, nonce: bytes, length: int) -> bytes:
+    stream = bytearray()
+    counter = 0
+    while len(stream) < length:
+        block = hashlib.sha256(key + nonce + counter.to_bytes(4, 'big')).digest()
+        stream.extend(block)
+        counter += 1
+    return bytes(stream[:length])
+
+
+def _xor_bytes(data: bytes, key_stream: bytes) -> bytes:
+    return bytes(byte ^ key_stream[index] for index, byte in enumerate(data))
 
 
 def encrypt_credentials(credentials: dict[str, Any]) -> str:
-    plaintext = json.dumps(credentials).encode()
+    plaintext = json.dumps(credentials, separators=(',', ':')).encode()
     key = hashlib.sha256(get_secret_key()).digest()
-    encrypted = _xor_bytes(plaintext, key)
-    return 'enc:' + base64.b64encode(encrypted).decode()
+    nonce = os.urandom(16)
+    keystream = _keystream(key, nonce, len(plaintext))
+    ciphertext = _xor_bytes(plaintext, keystream)
+    mac = hmac.new(key, nonce + ciphertext, hashlib.sha256).digest()
+    return 'encv2:' + base64.b64encode(nonce + mac + ciphertext).decode()
 
 
 def decrypt_credentials(payload: str) -> dict[str, Any]:
+    if payload.startswith('encv2:'):
+        key = hashlib.sha256(get_secret_key()).digest()
+        blob = base64.b64decode(payload[6:].encode())
+        nonce = blob[:16]
+        mac = blob[16:48]
+        ciphertext = blob[48:]
+        expected = hmac.new(key, nonce + ciphertext, hashlib.sha256).digest()
+        if not hmac.compare_digest(mac, expected):
+            raise ValueError('Credential payload integrity check failed')
+        keystream = _keystream(key, nonce, len(ciphertext))
+        plaintext = _xor_bytes(ciphertext, keystream)
+        return json.loads(plaintext.decode())
     if payload.startswith('enc:'):
         key = hashlib.sha256(get_secret_key()).digest()
         encrypted = base64.b64decode(payload[4:].encode())
-        decrypted = _xor_bytes(encrypted, key)
+        legacy_stream = bytes(key[index % len(key)] for index in range(len(encrypted)))
+        decrypted = _xor_bytes(encrypted, legacy_stream)
         return json.loads(decrypted.decode())
     return json.loads(payload)
 

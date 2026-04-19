@@ -1,15 +1,27 @@
 import { NextResponse } from 'next/server'
 import type { WorkItem } from '@/lib/board-types'
 import { appendAuditEvent } from '@/lib/server/audit-store'
+import { ensureObject, parseBoundedJsonBodyError, rejectUnlessAuthorized, requireNonEmptyString } from '@/lib/server/request-guards'
 import { readTasks, writeTasks } from '@/lib/server/tasks-store'
 
 export async function GET() {
+  const unauthorized = await rejectUnlessAuthorized()
+  if (unauthorized) return unauthorized
+
   const tasks = await readTasks()
   return NextResponse.json(tasks)
 }
 
 export async function POST(request: Request) {
-  const task = (await request.json()) as WorkItem
+  const unauthorized = await rejectUnlessAuthorized()
+  if (unauthorized) return unauthorized
+
+  const payload = await request.json().catch(() => null)
+  if (!ensureObject(payload)) return parseBoundedJsonBodyError('Invalid task payload')
+  const task = payload as WorkItem
+  requireNonEmptyString(task.id, 'task.id')
+  requireNonEmptyString(task.title, 'task.title')
+  requireNonEmptyString(task.status, 'task.status')
   const tasks = await readTasks()
   await writeTasks([task, ...tasks])
   await appendAuditEvent({
@@ -25,7 +37,11 @@ export async function POST(request: Request) {
 }
 
 export async function PUT(request: Request) {
-  const payload = (await request.json()) as WorkItem & { __deleteId?: string }
+  const unauthorized = await rejectUnlessAuthorized()
+  if (unauthorized) return unauthorized
+
+  const payload = (await request.json().catch(() => null)) as (WorkItem & { __deleteId?: string }) | null
+  if (!ensureObject(payload)) return parseBoundedJsonBodyError('Invalid task payload')
   const tasks = await readTasks()
 
   if (payload.__deleteId) {
