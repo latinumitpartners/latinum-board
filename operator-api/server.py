@@ -9,9 +9,11 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 from pathlib import Path
 from urllib.parse import urlparse
 
+from auth import validate_request_token
 from client_registry_api import CLIENT_REGISTRY_GET_PATHS, CLIENT_REGISTRY_POST_PATHS, handle_client_registry_get, handle_client_registry_post
 from crm_api import CRM_GET_PATHS, CRM_POST_PATHS, handle_crm_get, handle_crm_post
 from ingestion import COMMIT_CACHE_FILE, SESSIONS_CACHE_FILE, get_cached, get_recent_commits, get_session_snapshots
+from webhook_api import WEBHOOK_GET_PATHS, WEBHOOK_POST_PATHS, handle_webhook_get, handle_webhook_post
 
 WORKSPACE_REPO = Path('/home/ubuntu/.openclaw/workspace')
 API_PORT = 9876
@@ -21,12 +23,26 @@ class RequestHandler(BaseHTTPRequestHandler):
     def _send_json(self, payload, status=200):
         self.send_response(status)
         self.send_header('Content-Type', 'application/json')
-        self.send_header('Access-Control-Allow-Origin', '*')
         self.end_headers()
         self.wfile.write(json.dumps(payload).encode())
 
+    def _require_auth(self):
+        allowed, error = validate_request_token(self.headers)
+        if allowed:
+            return True
+        if error is not None:
+            payload, status = error
+            self._send_json(payload, status)
+        return False
+
     def do_GET(self):
         parsed = urlparse(self.path)
+        if parsed.path == '/health':
+            return self._send_json({'status': 'ok'})
+
+        if not self._require_auth():
+            return
+
         if parsed.path == '/api/commits/recent':
             commits = get_cached(COMMIT_CACHE_FILE, get_recent_commits, 'commits')
             self._send_json(commits)
@@ -45,13 +61,20 @@ class RequestHandler(BaseHTTPRequestHandler):
                 return self._send_json({'success': False, 'message': 'Unhandled client registry route'}, 404)
             payload, status = result
             self._send_json(payload, status)
-        elif parsed.path == '/health':
-            self._send_json({'status': 'ok'})
+        elif parsed.path in WEBHOOK_GET_PATHS:
+            result = handle_webhook_get(parsed.path, parsed.query)
+            if result is None:
+                return self._send_json({'success': False, 'message': 'Unhandled webhook route'}, 404)
+            payload, status = result
+            self._send_json(payload, status)
         else:
             self.send_response(404)
             self.end_headers()
 
     def do_POST(self):
+        if not self._require_auth():
+            return
+
         parsed = urlparse(self.path)
         content_length = int(self.headers.get('Content-Length', '0'))
         body = self.rfile.read(content_length) if content_length > 0 else b'{}'
@@ -74,18 +97,29 @@ class RequestHandler(BaseHTTPRequestHandler):
             response_body, status = result
             return self._send_json(response_body, status)
 
+        if parsed.path in WEBHOOK_POST_PATHS:
+            result = handle_webhook_post(parsed.path, payload)
+            if result is None:
+                return self._send_json({'success': False, 'message': 'Unhandled webhook route'}, 404)
+            response_body, status = result
+            return self._send_json(response_body, status)
+
         self.send_response(404)
         self.end_headers()
 
     def log_message(self, format, *args):
+        parsed = urlparse(getattr(self, 'path', ''))
+        if parsed.path in {'/api/crm/validate', '/api/crm/setup', '/api/crm/rotate'}:
+            print(f'[{self.log_date_time_string()}] {self.command} {parsed.path}')
+            return
         print(f'[{self.log_date_time_string()}] {format % args}')
 
 
 def main():
-    server = HTTPServer(('0.0.0.0', API_PORT), RequestHandler)
+    server = HTTPServer(('127.0.0.1', API_PORT), RequestHandler)
     print(f'Latinum Board operator API listening on :{API_PORT}')
     print(f'Workspace repo: {WORKSPACE_REPO}')
-    print('Endpoints: /api/commits/recent, /api/sessions/recent, /api/crm/*, /api/clients, /api/client, /health')
+    print('Endpoints: /api/commits/recent, /api/sessions/recent, /api/crm/*, /api/clients, /api/client, /api/webhooks/*, /health')
     try:
         server.serve_forever()
     except KeyboardInterrupt:
