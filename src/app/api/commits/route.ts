@@ -18,8 +18,20 @@ export async function PUT(request: Request) {
 
   const payload = await request.json().catch(() => null)
   if (!ensureObject(payload)) return parseBoundedJsonBodyError('Invalid commit payload')
-  const updated = payload as CommitRecord
-  requireNonEmptyString(updated.hash, 'commit.hash')
+
+  const hash = requireNonEmptyString(payload.hash, 'commit.hash')
+  const message = requireNonEmptyString(payload.message, 'commit.message')
+  const repo = requireNonEmptyString(payload.repo, 'commit.repo')
+  const date = requireNonEmptyString(payload.date, 'commit.date')
+
+  const updated: CommitRecord = {
+    ...payload,
+    hash,
+    message,
+    repo,
+    date,
+    linkedItemId: typeof payload.linkedItemId === 'string' ? payload.linkedItemId : undefined,
+  }
   const commits = await readCommits()
   const next = commits.map((commit) => (commit.hash === updated.hash ? updated : commit))
   await writeCommits(next)

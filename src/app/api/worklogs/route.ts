@@ -4,6 +4,13 @@ import { appendAuditEvent } from '@/lib/server/audit-store'
 import { ensureObject, parseBoundedJsonBodyError, rejectUnlessAuthorized, requireNonEmptyString } from '@/lib/server/request-guards'
 import { readWorklogs, writeWorklogs } from '@/lib/server/worklogs-store'
 
+function requireStringArray(value: unknown, field: string): string[] {
+  if (!Array.isArray(value) || value.some((item) => typeof item !== 'string')) {
+    throw new Error(`${field} must be an array of strings`)
+  }
+  return value
+}
+
 export async function GET() {
   const unauthorized = await rejectUnlessAuthorized()
   if (unauthorized) return unauthorized
@@ -18,9 +25,23 @@ export async function POST(request: Request) {
 
   const payload = await request.json().catch(() => null)
   if (!ensureObject(payload)) return parseBoundedJsonBodyError('Invalid worklog payload')
-  const worklog = payload as WorklogEntry
-  requireNonEmptyString(worklog.id, 'worklog.id')
-  requireNonEmptyString(worklog.date, 'worklog.date')
+
+  const id = requireNonEmptyString(payload.id, 'worklog.id')
+  const date = requireNonEmptyString(payload.date, 'worklog.date')
+  const summary = requireNonEmptyString(payload.summary, 'worklog.summary')
+  const bullets = requireStringArray(payload.bullets, 'worklog.bullets')
+  const linkedItemIds = requireStringArray(payload.linkedItemIds, 'worklog.linkedItemIds')
+  const linkedCommitHashes = requireStringArray(payload.linkedCommitHashes, 'worklog.linkedCommitHashes')
+
+  const worklog: WorklogEntry = {
+    ...payload,
+    id,
+    date,
+    summary,
+    bullets,
+    linkedItemIds,
+    linkedCommitHashes,
+  }
   const worklogs = await readWorklogs()
   await writeWorklogs([worklog, ...worklogs])
   await appendAuditEvent({
@@ -40,8 +61,23 @@ export async function PUT(request: Request) {
 
   const payload = await request.json().catch(() => null)
   if (!ensureObject(payload)) return parseBoundedJsonBodyError('Invalid worklog payload')
-  const updated = payload as WorklogEntry
-  requireNonEmptyString(updated.id, 'worklog.id')
+
+  const id = requireNonEmptyString(payload.id, 'worklog.id')
+  const date = requireNonEmptyString(payload.date, 'worklog.date')
+  const summary = requireNonEmptyString(payload.summary, 'worklog.summary')
+  const bullets = requireStringArray(payload.bullets, 'worklog.bullets')
+  const linkedItemIds = requireStringArray(payload.linkedItemIds, 'worklog.linkedItemIds')
+  const linkedCommitHashes = requireStringArray(payload.linkedCommitHashes, 'worklog.linkedCommitHashes')
+
+  const updated: WorklogEntry = {
+    ...payload,
+    id,
+    date,
+    summary,
+    bullets,
+    linkedItemIds,
+    linkedCommitHashes,
+  }
   const worklogs = await readWorklogs()
   const next = worklogs.map((entry) => (entry.id === updated.id ? updated : entry))
   await writeWorklogs(next)
