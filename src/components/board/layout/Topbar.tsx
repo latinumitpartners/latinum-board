@@ -9,6 +9,7 @@ const labels: Record<string, string> = {
   '/board': 'Board',
   '/worklog': 'Work Log',
   '/commits': 'Commits',
+  '/clients': 'Clients',
 }
 
 const filterOptions: Array<{ key: FilterKey; label: string }> = [

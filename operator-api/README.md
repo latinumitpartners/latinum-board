@@ -1,6 +1,6 @@
 # Latinum Board Operator API
 
-Lightweight HTTP API for serving recent commits to the Latinum Board app.
+Lightweight HTTP API for serving recent commits, sessions, CRM state, and client registry data to the Latinum Board app.
 
 ## Quick Start
 
@@ -11,6 +11,12 @@ python3 server.py
 
 Server runs on port 9876 and listens at:
 - `GET /api/commits/recent` – returns recent commits from the workspace
+- `GET /api/sessions/recent` – returns recent session snapshots
+- `GET /api/clients` – lists client registry records
+- `GET /api/client?client_id=...` – returns one client registry record
+- `POST /api/clients` – creates a client registry record
+- `POST /api/clients/update` – updates a client registry record
+- `POST /api/clients/status` – updates client lifecycle status
 - `GET /health` – health check
 
 ## Systemd Service (Optional)
@@ -65,6 +71,7 @@ Migration mode:
 
 ## Notes
 
-- Caches commits for 5 minutes to reduce git workload
+- Caches commits and sessions for 5 minutes to reduce workload
 - CORS enabled for all origins (internal use)
+- Includes CRM integration APIs and Phase 1 client registry APIs
 - Tolerates missing repo or git errors gracefully

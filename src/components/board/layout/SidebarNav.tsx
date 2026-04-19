@@ -10,6 +10,7 @@ const navItems = [
   { label: 'Work Log', href: '/worklog' },
   { label: 'Commits', href: '/commits' },
   { label: 'Projects', href: '/projects' },
+  { label: 'Clients', href: '/clients' },
 ]
 
 const filters = ['High Priority', 'Blocked', 'Delegated to Claudia', 'Needs Logging']

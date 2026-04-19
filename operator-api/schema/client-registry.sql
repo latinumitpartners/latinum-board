@@ -1,0 +1,22 @@
+CREATE TABLE IF NOT EXISTS client_registry (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  client_id TEXT NOT NULL UNIQUE,
+  client_name TEXT NOT NULL,
+  status TEXT NOT NULL DEFAULT 'active',
+  environment TEXT NOT NULL DEFAULT 'test',
+  bot_id TEXT,
+  crm_type TEXT,
+  crm_integration_id INTEGER,
+  webhook_url TEXT,
+  webhook_secret_label TEXT,
+  webhook_secret_version INTEGER,
+  webhook_enabled INTEGER NOT NULL DEFAULT 0,
+  webhook_event_version TEXT,
+  notes TEXT,
+  created_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  updated_at TEXT DEFAULT CURRENT_TIMESTAMP,
+  last_webhook_success_at TEXT,
+  last_webhook_failure_at TEXT,
+  last_webhook_error TEXT,
+  FOREIGN KEY(crm_integration_id) REFERENCES crm_integrations(id)
+);
